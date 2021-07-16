@@ -1,0 +1,18 @@
+{
+  "name": "dhapi",
+  "version": "1.0.0",
+  "description": "api for digihymnal",
+  "main": "index.js",
+  "type": "module",
+  "dependencies": {
+    "express": "^4.17.1",
+    "localforage": "^1.9.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "dev": "node index.js",
+    "test": "test"
+  },
+  "author": "Isaac Schubert",
+  "license": "ISC"
+}
