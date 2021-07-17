@@ -1,4 +1,4 @@
-import DB from "./mysql.js";
+import DB from "./DB.js";
 
 import SAMPLE_1 from "../js/1.ཀྱེ། དཀོན་མཆོག.js";
 import SAMPLE_2 from "../js/2.ཀྱེ། མི་རིགས་ཀུན། .js";
@@ -300,89 +300,51 @@ import SAMPLE_A from "../js/བརྐུ་བྱེད་རྒྱུ་མི�
 import SAMPLE_B from "../js/མི་གཞན་ལ་རྫུན་གྱི་དཔང་པོ་བྱེད་རྒྱུ་མིན།.js";
 import SAMPLE_C from "../js/མི་གསོད་རྒྱུ་མིན།.js";
 import SAMPLE_D from "../js/ལོག་གཡེམ་བྱེད་རྒྱུ་མིན།.js";
+import fs from 'fs'
 
 const SAMPLE_SONGS = [SAMPLE_1,SAMPLE_2,SAMPLE_3,SAMPLE_4,SAMPLE_5,SAMPLE_6,SAMPLE_7,SAMPLE_8,SAMPLE_9,SAMPLE_10,SAMPLE_11,SAMPLE_12,SAMPLE_13,SAMPLE_14,SAMPLE_15,SAMPLE_16,SAMPLE_17,SAMPLE_18,SAMPLE_19,SAMPLE_20,SAMPLE_21,SAMPLE_22,SAMPLE_23,SAMPLE_24,SAMPLE_25,SAMPLE_26,SAMPLE_27,SAMPLE_28,SAMPLE_29,SAMPLE_30,SAMPLE_31,SAMPLE_32,SAMPLE_33,SAMPLE_34,SAMPLE_35,SAMPLE_36,SAMPLE_37,SAMPLE_38,SAMPLE_39,SAMPLE_40,SAMPLE_41,SAMPLE_42,SAMPLE_43,SAMPLE_44,SAMPLE_45,SAMPLE_46,SAMPLE_47,SAMPLE_48,SAMPLE_49,SAMPLE_50,SAMPLE_51,SAMPLE_52,SAMPLE_53,SAMPLE_54,SAMPLE_55,SAMPLE_56,SAMPLE_57,SAMPLE_58,SAMPLE_59,SAMPLE_60,SAMPLE_61,SAMPLE_62,SAMPLE_63,SAMPLE_64,SAMPLE_65,SAMPLE_66,SAMPLE_67,SAMPLE_68,SAMPLE_69,SAMPLE_70,SAMPLE_71,SAMPLE_72,SAMPLE_73,SAMPLE_74,SAMPLE_75,SAMPLE_76,SAMPLE_77,SAMPLE_78,SAMPLE_79,SAMPLE_80,SAMPLE_81,SAMPLE_82,SAMPLE_83,SAMPLE_84,SAMPLE_85,SAMPLE_86,SAMPLE_87,SAMPLE_88,SAMPLE_89,SAMPLE_90,SAMPLE_91,SAMPLE_92,SAMPLE_93,SAMPLE_94,SAMPLE_95,SAMPLE_96,SAMPLE_97,SAMPLE_98,SAMPLE_99,SAMPLE_100,SAMPLE_101,SAMPLE_102,SAMPLE_103,SAMPLE_104,SAMPLE_105,SAMPLE_106,SAMPLE_107,SAMPLE_108,SAMPLE_109,SAMPLE_110,SAMPLE_111,SAMPLE_112,SAMPLE_113,SAMPLE_114,SAMPLE_115,SAMPLE_116,SAMPLE_117,SAMPLE_118,SAMPLE_119,SAMPLE_120,SAMPLE_121,SAMPLE_122,SAMPLE_123,SAMPLE_124,SAMPLE_125,SAMPLE_126,SAMPLE_127,SAMPLE_128,SAMPLE_129,SAMPLE_130,SAMPLE_131,SAMPLE_132,SAMPLE_133,SAMPLE_134,SAMPLE_135,SAMPLE_136,SAMPLE_137,SAMPLE_138,SAMPLE_139,SAMPLE_140,SAMPLE_141,SAMPLE_142,SAMPLE_143,SAMPLE_144,SAMPLE_145,SAMPLE_146,SAMPLE_147,SAMPLE_148,SAMPLE_149,SAMPLE_150,SAMPLE_151,SAMPLE_152,SAMPLE_153,SAMPLE_154,SAMPLE_155,SAMPLE_156,SAMPLE_157,SAMPLE_158,SAMPLE_159,SAMPLE_160,SAMPLE_161,SAMPLE_162,SAMPLE_163,SAMPLE_164,SAMPLE_165,SAMPLE_166,SAMPLE_167,SAMPLE_168,SAMPLE_169,SAMPLE_170,SAMPLE_171,SAMPLE_172,SAMPLE_173,SAMPLE_174,SAMPLE_175,SAMPLE_176,SAMPLE_177,SAMPLE_178,SAMPLE_179,SAMPLE_180,SAMPLE_181,SAMPLE_182,SAMPLE_183,SAMPLE_184,SAMPLE_185,SAMPLE_186,SAMPLE_187,SAMPLE_188,SAMPLE_189,SAMPLE_190,SAMPLE_191,SAMPLE_192,SAMPLE_193,SAMPLE_194,SAMPLE_195,SAMPLE_196,SAMPLE_197,SAMPLE_198,SAMPLE_199,SAMPLE_200,SAMPLE_201,SAMPLE_202,SAMPLE_203,SAMPLE_204,SAMPLE_205,SAMPLE_206,SAMPLE_207,SAMPLE_208,SAMPLE_209,SAMPLE_210,SAMPLE_211,SAMPLE_212,SAMPLE_213,SAMPLE_214,SAMPLE_215,SAMPLE_216,SAMPLE_217,SAMPLE_218,SAMPLE_219,SAMPLE_220,SAMPLE_221,SAMPLE_222,SAMPLE_223,SAMPLE_224,SAMPLE_225,SAMPLE_226,SAMPLE_227,SAMPLE_229,SAMPLE_230,SAMPLE_231,SAMPLE_232,SAMPLE_233,SAMPLE_234,SAMPLE_235,SAMPLE_236,SAMPLE_237,SAMPLE_238,SAMPLE_239,SAMPLE_240,SAMPLE_241,SAMPLE_242,SAMPLE_243,SAMPLE_244,SAMPLE_245,SAMPLE_246,SAMPLE_247,SAMPLE_248,SAMPLE_249,SAMPLE_250,SAMPLE_251,SAMPLE_252,SAMPLE_253,SAMPLE_254,SAMPLE_255,SAMPLE_256,SAMPLE_257,SAMPLE_258,SAMPLE_259,SAMPLE_260,SAMPLE_261,SAMPLE_262,SAMPLE_263,SAMPLE_264,SAMPLE_265,SAMPLE_266,SAMPLE_267,SAMPLE_268,SAMPLE_269,SAMPLE_270,SAMPLE_271,SAMPLE_272,SAMPLE_273,SAMPLE_274,SAMPLE_A1,SAMPLE_A2,SAMPLE_A3,SAMPLE_A4,SAMPLE_A5,SAMPLE_A6,SAMPLE_A7,SAMPLE_S8,SAMPLE_S23,SAMPLE_S32,SAMPLE_S40,SAMPLE_S49,SAMPLE_S51,SAMPLE_S67,SAMPLE_S84,SAMPLE_S91,SAMPLE_S95,SAMPLE_S96,SAMPLE_S113,SAMPLE_S133,SAMPLE_S143,SAMPLE_S145,SAMPLE_0014,SAMPLE_A,SAMPLE_B,SAMPLE_C,SAMPLE_D];
 
-const DB_NAME = "DIGIHYMNAL_SONG";
+var megaFile = {};
 
-export default class SongCollection {
-    constructor() {
-        this.db = DB.getInstance(DB_NAME);
-    }
-
-    async initSample() {
-        let tasks = [];
-
-        SAMPLE_SONGS.forEach(async (song) => {
-            tasks.push(await this.db.setItem(song.id, song));
-        })
-
-        return Promise.all(tasks);
-    }
-
-    async list({ start, limit, languageCode }) {
-
-        // TODO
-        // Update to pull using AJAX request
-
-        let tasks = [];
-        let result = [];
-        let ids = await this.db.keys();
-        ids = ids.slice(start || 0, limit || 10);
-
-        // load and push songs to an array consequently
-        (ids || []).forEach((id) => {
-            tasks.push(() => new Promise(async (next, bad) => {
-                result.push(await this.get(id));
-                next();
-            }));
-        });
-
-        // Return data
-        tasks.push(() => {
-
-            // Convert title to current language
-            if (languageCode) {
-                (result || []).forEach((item) => {
-                    if (!item.title) return;
-
-                    var found = false;
-                    Object.keys(item.title).forEach((prop) => {
-                        //console.log(prop, languageCode);
-                        if (prop == languageCode) {
-                          item.title = item.title[prop];
-                          found = true;
-                        }
-                    });
-                    if (!found) {
-                      delete item.title;
-                    }
-                });
+function testRead() {
+    fs.readFile(`./data/test/megaFile.json`, 'utf8', (err, data) =>{
+        if (err) {
+            console.error(err)
             }
-
-            return Promise.resolve(result);
+        console.log(JSON.parse(data));
+    });
+}
+//testRead()
+function initSample() {
+    SAMPLE_SONGS.forEach((song) => {
+        
+        let data = JSON.stringify({'id':song.id, 'song':song}).concat(', ')
+        fs.appendFile(`./data/test/megaFile.json`, data, function(err) {
+            if(err) {
+                console.log(err);
+            }
+                console.log(`${song.id} was saved!`);
         });
+    })
+}
+//initSample()
+// async function save() {
+//     return await initSample( function() {
+//         console.log("it worked!")
+//         console.log(megaFile)
+//     });
+// }
+// save()
+// async function initSample() {
+//     SAMPLE_SONGS.forEach(async (song) => {
+//         megaFile[song.id] = (song);
+//     })
+// }
 
-        return tasks.reduce((promiseChain, currTask) => {
-            return promiseChain.then(currTask);
-        }, Promise.resolve([]));
-    }
-
-    async get(id) {
-        return await this.db.getItem(id);
-    }
-    
-    async set(id, data) {
-        console.log({"id":id, "data":data})
-        return await this.db.setItem(id, data, function() {
-            console.log({"it worked!":id})
-          });
-    }
-
-    async languages(id) {
-        let song = await this.get(id);
-        if (!song) return Promise.resolve([]);
-
-        return Promise.resolve(Object.keys(song.title));
-    }
-};
+// async function save() {
+//     return await initSample( function() {
+//         console.log("it worked!")
+//         console.log(megaFile)
+//     });
+// }
+// save()

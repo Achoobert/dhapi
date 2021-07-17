@@ -1,25 +1,25 @@
-import localForage from "localforage";
+import glob from "glob";
+import fs from "fs";
 
-let isConfig;
-let DB_Instances = {};
-
-export default class DB {
-
-    static getInstance(name) {
-
-        if (!isConfig) {
-            localForage.config({
-                driver: localForage.WEBSQL, // Force WebSQL; same as using setDriver()
-                name: 'digiHymnal',
-                version: 1.0,
-                size: 4980736, // Size of database, in bytes. WebSQL-only for now.
-                storeName: 'keyvaluepairs', // Should be alphanumeric, with underscores.
+export default class HynmalObj{
+    static constructor() {
+        this.songs = init()
+    }
+    async init(){
+        var array
+        glob("../json/*.json", function(err, files) { // read the folder or folders if you want: example json/**/*.json
+            if(err) {
+                console.log("cannot read the folder, something goes wrong with glob", err);
+            }
+            files.forEach(function(file) {
+                fs.readFile(file, 'utf8', function (err, data) { // Read each file
+                if(err) {
+                    console.log(`cannot read ${file}, something goes wrong with the file`, err);
+                }
+                array.push({'id':data.id, 'data':data})
+                });
             });
-        }
-
-        if (DB_Instances[name] == null)
-            DB_Instances[name] = localForage.createInstance({ name });
-
-        return DB_Instances[name];
+        });
+        return array;
     }
 }

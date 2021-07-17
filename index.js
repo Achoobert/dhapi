@@ -1,15 +1,55 @@
 //const express = require('express')
 //import('express')
 import express from 'express';
-const app = express()
+import cors from 'cors';
+import fs from 'fs';
+
+import FileSave from './data/filesave.js';
+import HynmalObj from './data/DB.js';
+const songCollection = new HynmalObj();
+var fileSave = new FileSave();
+const router = express.Router();
+var app = express();
+app.use(cors({
+  origin: "http://localhost:8080"
+}));
+
+
+//Here we are configuring express to use  middle-ware?
+//app.use(express.urlencoded());
+app.use(express.json());  
+
+router.post('/handle',(request,response) => {
+  //To access POST variable use req.body()methods.
+  var incomingData = ''
+  request.on( 'data', function(chunk) { incomingData.concat(chunk); } );
+  request.on( 'close', function() { 
+    console.dir({"Request body":incomingData});// your JSON
+    fileSave.FileSave(incomingData);
+    response.send("thanks!");    // echo the result back
+  } );
+  console.log(request.body);// your JSON
+});
+
+// add router in the Express app.
+app.use("/", router);
+
 const port = 8081
 
-import Song from './data/song.js';
 
-const songCollection = new Song();
 
-app.get('/songs/', (req, res) => {
-  res.send(songCollection)
+const SONGS = fs.readFileSync(`./data/test/megaFile.json`, 'utf8', (err, data) =>{
+  if (err) {
+    console.error(err)
+  }
+  return (data);
+});
+//console.log(SONGS)
+
+app.get('/songs', (req, res) => {
+  
+  res.send(SONGS)
+  //res.send(JSON.stringify(songCollection));
 })
 
 app.get('/', (req, res) => {
@@ -21,114 +61,9 @@ app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
 })
 
-// const http = require('http')
-// const fs = require('fs');
 
-// //
-// //'./test/data/song.js'
-// //
+//  Move this to a modle at some point???
 
-// const server = http.createServer(function(request, response) {
-//   // none of these work :(
-//   //console.dir(request)
-//   //console.log(request.headers['access-control-request-method'])
-//   //console.dir(request.param)
-//   // request.on('headers', function(headers) {
-//   //   console.log({'headers':headers})
-//   // })
+import mysql from './data/mysql.js';
 
-//   request.on('data', function(data) {
-//     // this is the working logger
-//     console.log({'data':data.toString()})
-//     try{
-//       // TODO check a password
-//       var usableData = JSON.parse(data.toString());
-//       var password = usableData.password;
-//       var songId = usableData.songId;
-//       var song = usableData.data
-
-//       // get filename 
-//       // filename is just the title under the AT translation
-//       // AT, else grab EN, else whatever
-//       var filename;
-//       if(song.title['at']){
-//         filename = (song.title['at'])
-//       } else if (song.title['en']){
-//         filename = (song.title['en'])
-//       }else{
-//         // TODO check if this actually works
-//         for (const tag in song.title) {
-//           if (Object.hasOwnProperty.call(song.title, tag)) {
-//             const element = song.title[tag];
-//             filename = element
-//             break;
-//           }
-//         }
-//       }
-//       filename = filename.trim().concat('.js')
-
-//       var songData = ('export default ').concat(JSON.stringify(song))    
-      
-//       if(password === 'password'){
-//       // write to file
-//       fs.writeFile(`./test/${filename}`, songData, function(err) {
-//         if(err) {
-//             return console.log(err);
-//         }
-//         console.log(`${filename} was saved!`);
-//         }); 
-//       } else{
-//         console.log('Bad Password')
-//       }
-//       // rebuild??? server rebuild
-      
-
-//       // TODO tell client that save worked?
-//       request.on('end', function() {
-//         response.end('post received')
-//       })
-//       // request.on('end', function() {
-//       //   console.log(data)
-//       //   response.writeHead(200, {'Content-Type': 'text/html'})
-//       //   response.writeHead(200)
-//       //   response.end('post received')
-//       // })
-//    }catch(e){
-//      console.error(e)
-//    }
-//   })
-  
-
-//   // if (request.method == 'POST') {
-//   if (request.headers['access-control-request-method'] == 'POST') {
-//     console.log('POST')
-//     var body = ''
-//     request.on('data', function(data) {
-//       console.log(data)
-//     })
-//     request.on('end', function() {
-//       console.log(data)
-//       response.writeHead(200, {'Content-Type': 'text/html'})
-//       response.writeHead(200)
-//       response.end('post received')
-//     })
-//   }// else {
-//     // console.log('GET')
-//     // var html = `
-//     //         <html>
-//     //             <body>
-//     //                 <form method="post" action="http://localhost:8080">Name: 
-//     //                     <input type="text" name="name" />
-//     //                     <input type="submit" value="Submit" />
-//     //                 </form>
-//     //             </body>
-//     //         </html>`
-//     // response.writeHead(200, {'Content-Type': 'text/html'})
-//     // response.end(html)
-//   //}
-// })
-
-// const port = 8081
-// const host = '127.0.0.1'
-// server.listen(port, host )
-// console.log(`Listening at http://${host}:${port}`)
+console.log(mysql.conn)
