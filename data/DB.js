@@ -1,48 +1,61 @@
 import fs from "fs";
 import Database from "@replit/database";
-const db = new Database()
-// db.set("key", "value").then(() => {});
-// db.get("key").then(value => {});
-// db.delete("key").then(() => {});
-// db.list().then(keys => {});
-// db.list("prefix").then(matches => {});
-// Get all key/value pairs and return as an object.
-// setAll(Object obj)
+const db = new Database();
 
-export default class HynmalDB{
-    static constructor(songs) {
-      songs.forEach(song => {
-        this.db.set(song.id, {"id":song.id, "song": song.song}).then((report) => {
-          console.log(report)
+export default class HymnalDB{
+    static constructor() {
+      fs.readFileAsync = function() {
+        return new Promise(function(resolve, reject) {
+          fs.readFile(`./data/test/megaFile.json`, function(err, data){
+            if (err) 
+              reject(err); 
+            else 
+              resolve(data);
+          });
         });
+      };
+      return fs.readFileAsync().then((promisedata) => {
+        var data = JSON.parse(promisedata)
+        db.setAll(data.dataArray)
+        return (data.dataArray);
       });
-      this.songs = init()
+
     }
     async getAll(){
-      //return this.db.setAll(Object obj)
+      return db.getAll()
     }
     async getList(){
-      return this.db.list()// .then(keys => {});
+      return db.list().then(keys => {
+        if(keys==null){
+          return "keys are null"
+        }
+        return keys
+      });
     }
     async getSong(key){
-      return this.db.get(key)//.then(value => {});
+      return db.get(key).then(value => {
+        if(value==null){
+          return "song value is null"
+        }
+        return value;
+      });
     }
     async updateSong(key, newData){
-      return this.db.set(key, newData).then((key) => {
+      returndb.set(key, newData).then((key) => {
         // TODO fs write
         console.log(key);
         return key
       });
     }
     async newSong(key, newData){
-      return this.db.set(key, newData).then((key) => {
+      return db.set(key, newData).then((key) => {
         // TODO fs write
         console.log(key);
         return key
       });
     }
     async deleteSong(key){
-      return this.db.delete(key).then(() => {
+      return db.delete(key).then(() => {
         // TODO fs write
         console.log("deleted")
       });

@@ -5,9 +5,16 @@ import cors from 'cors';
 import fs from 'fs';
 
 //import FileSave from './data/filesave.js';
-import HynmalObj from './data/DB.js';
-var songCollection //= new HynmalObj();
-//var fileSave = new FileSave();
+import HymnalObj from './data/DB.js';
+const SONGS = fs.readFileSync(`./data/test/megaFile.json`, 'utf8', (err, data) =>{
+  if (err) {
+    console.error(err)
+  }
+  return (data);
+});
+var songCollection = new HymnalObj();
+songCollection.getAll().then((data) => console.log(data))
+
 const router = express.Router();
 var app = express();
 app.use(cors({
@@ -38,25 +45,48 @@ const port = 8081
 
 
 
-const SONGS = fs.readFileSync(`./data/test/megaFile.json`, 'utf8', (err, data) =>{
-  if (err) {
-    console.error(err)
-  }
-  return (data);
-  console.log(data)
-  songCollection = new HynmalObj(data);
-});
+
 //console.log(SONGS)
 
 app.get('/songs', (req, res) => {
-  
   res.send(SONGS)
   //res.send(JSON.stringify(songCollection));
 })
 
-app.get('/', (req, res) => {
-  res.send('Hello World!')
+app.get('/song', (req, res) => {
+  res.send( JSON.stringify(
+      songCollection.getSong(1)
+      )
+    );
 })
+
+// app.get('/', (req, res) => {
+//   //res.send('Hello World!')
+//   //
+//   console.log(songCollection.getString('1'))
+//   res.send( songCollection.getString('1') );
+// })
+
+app.get("/", (req, res)=>{
+  const songid = '1'
+  songCollection.getList()
+    .then((dbData) => {
+      console.log({"data is": dbData})
+      res.send(dbData);
+      console.log("Page sent")
+    });
+})
+// app.get("song/:songid", (req, res)=>{
+//   const songid = req.params.songid;
+//   getParsedHTML(songid)
+//     .then((parsedHTML) => {
+//       res.json({
+//         username,
+//         parsedHTML
+//       });
+//       console.log("Page sent")
+//     });
+// })
 
 
 app.listen(port, () => {
