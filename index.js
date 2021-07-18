@@ -4,10 +4,10 @@ import express from 'express';
 import cors from 'cors';
 import fs from 'fs';
 
-import FileSave from './data/filesave.js';
+//import FileSave from './data/filesave.js';
 import HynmalObj from './data/DB.js';
-const songCollection = new HynmalObj();
-var fileSave = new FileSave();
+var songCollection //= new HynmalObj();
+//var fileSave = new FileSave();
 const router = express.Router();
 var app = express();
 app.use(cors({
@@ -25,7 +25,7 @@ router.post('/handle',(request,response) => {
   request.on( 'data', function(chunk) { incomingData.concat(chunk); } );
   request.on( 'close', function() { 
     console.dir({"Request body":incomingData});// your JSON
-    fileSave.FileSave(incomingData);
+    //fileSave.FileSave(incomingData);
     response.send("thanks!");    // echo the result back
   } );
   console.log(request.body);// your JSON
@@ -43,6 +43,8 @@ const SONGS = fs.readFileSync(`./data/test/megaFile.json`, 'utf8', (err, data) =
     console.error(err)
   }
   return (data);
+  console.log(data)
+  songCollection = new HynmalObj(data);
 });
 //console.log(SONGS)
 
@@ -60,10 +62,3 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
 })
-
-
-//  Move this to a modle at some point???
-
-import mysql from './data/mysql.js';
-
-console.log(mysql.conn)

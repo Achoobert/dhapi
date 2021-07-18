@@ -1,25 +1,51 @@
-import glob from "glob";
 import fs from "fs";
+import Database from "@replit/database";
+const db = new Database()
+// db.set("key", "value").then(() => {});
+// db.get("key").then(value => {});
+// db.delete("key").then(() => {});
+// db.list().then(keys => {});
+// db.list("prefix").then(matches => {});
+// Get all key/value pairs and return as an object.
+// setAll(Object obj)
 
-export default class HynmalObj{
-    static constructor() {
-        this.songs = init()
-    }
-    async init(){
-        var array
-        glob("../json/*.json", function(err, files) { // read the folder or folders if you want: example json/**/*.json
-            if(err) {
-                console.log("cannot read the folder, something goes wrong with glob", err);
-            }
-            files.forEach(function(file) {
-                fs.readFile(file, 'utf8', function (err, data) { // Read each file
-                if(err) {
-                    console.log(`cannot read ${file}, something goes wrong with the file`, err);
-                }
-                array.push({'id':data.id, 'data':data})
-                });
-            });
+export default class HynmalDB{
+    static constructor(songs) {
+      songs.forEach(song => {
+        this.db.set(song.id, {"id":song.id, "song": song.song}).then((report) => {
+          console.log(report)
         });
-        return array;
+      });
+      this.songs = init()
+    }
+    async getAll(){
+      //return this.db.setAll(Object obj)
+    }
+    async getList(){
+      return this.db.list()// .then(keys => {});
+    }
+    async getSong(key){
+      return this.db.get(key)//.then(value => {});
+    }
+    async updateSong(key, newData){
+      return this.db.set(key, newData).then((key) => {
+        // TODO fs write
+        console.log(key);
+        return key
+      });
+    }
+    async newSong(key, newData){
+      return this.db.set(key, newData).then((key) => {
+        // TODO fs write
+        console.log(key);
+        return key
+      });
+    }
+    async deleteSong(key){
+      return this.db.delete(key).then(() => {
+        // TODO fs write
+        console.log("deleted")
+      });
     }
 }
+
