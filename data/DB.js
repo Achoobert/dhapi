@@ -4,7 +4,10 @@ const db = new Database();
 
 export default class HymnalDB{
     static constructor() {
-      this.titleList = []
+      this.db = db
+    }
+    
+    async init(){
       fs.readFileAsync = function() {
         return new Promise(function(resolve, reject) {
           fs.readFile(`./data/test/megaFile.json`, function(err, data){
@@ -18,20 +21,26 @@ export default class HymnalDB{
       return fs.readFileAsync().then((promisedata) => {
         var data = JSON.parse(promisedata)
         db.setAll(data.dataArray)
-        data.dataArray.forEach(song => {
-          this.titleList.push({'id':song.id, 'title':song.title })
-        });
-        this.dataObj = data.dataArray
-        return (data.dataArray);
+        return data.dataArray
+        // data.dataArray.forEach(song => {
+        //   this.titleList.push({'id':song.id, 'title':song.title })
+        // });
       });
-
     }
     async getAll(){
-      return db.getAll()
-    }
-    async getTitleList(){
-      return this.titleList
-    }
+      return db.getAll().then(databaseData => {
+        if (databaseData == null){
+          this.init().then(() =>{
+            return this.getAll();
+          })
+        }else{
+          return databaseData;
+        }
+      });
+    };
+    // async getTitleList(){
+    //   return this.titleList
+    // }
     async getList(){
       return db.list().then(keys => {
         if(keys==null){
@@ -52,7 +61,26 @@ export default class HymnalDB{
       return db.set(key, newData).then((key) => {
         // TODO fs write
         console.log(key);
-        return key
+        return (`updated song: ${key}`)
+      });
+    }
+    // update only selected
+    async updateSong(requestData){
+      let key = requestData.songId
+      return db.get(key).then(songData => {
+        if (songData.song == undefined){
+          console.error('is undefined')
+          return ({"error is undefined":songData})
+        }
+        if(requestData.lineId){
+          songData.song.lyrics.verses[requestData.verseId].lines[requestData.lineId] = requestData.newData;
+        } else if(requestData.verseId){
+          songData.song.lyrics.verses[requestData.verseId] = requestData.newData;
+        } else {
+          songData.song = requestData.newData;
+        }  
+        
+        return this.setSong(key, songData)
       });
     }
     async newSong(key, newData){
