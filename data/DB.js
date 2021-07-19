@@ -60,8 +60,8 @@ export default class HymnalDB{
     async setSong(key, newData){
       return db.set(key, newData).then((key) => {
         // TODO fs write
-        console.log(key);
-        return (`updated song: ${key}`)
+        console.log({"Written new data":newData,"key":key});
+        return (`updated song: ${newData.id}`)
       });
     }
     // update only selected

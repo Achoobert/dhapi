@@ -67,10 +67,7 @@ router.post('/handle',(request,response) => {
   });
 });
 // set a specific item 
-router.post('/handle/update/:songId',(request,response) => {
-  //To access POST variable use req.body()methods.
-  console.log(request.params.songId, request.body);// your JSON
-  
+router.post('/handle/update/:songId',(request,response) => {  
   songCollection.updateSong(request.body).then((report) => {
     console.log(report)
     response.send(report);    // echo back
