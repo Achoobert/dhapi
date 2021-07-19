@@ -7,7 +7,7 @@ var app = express();
 var port = 8080;
 app.use(cors());
 var songCollection = new HymnalObj();
-var SONGS = songCollection.getAll().then((data) => {
+var SONGS = songCollection.init().then((data) => {
   console.log(data)
     app.listen(port, () => {
         console.log(`data ready and example app listening at http://localhost:${port}`)
