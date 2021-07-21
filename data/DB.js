@@ -68,9 +68,9 @@ export default class HymnalDB{
     async updateSong(requestData){
       let key = requestData.songId
       return db.get(key).then(songData => {
-        if (songData.song == undefined){
-          console.error('is undefined')
-          return ({"error is undefined":songData})
+        if (songData == undefined || songData.song == undefined){
+          console.log('song did not already exist... creating')
+          return this.newSong(key, requestData.newData);
         }
         if(requestData.lineId){
           songData.song.lyrics.verses[requestData.verseId].lines[requestData.lineId] = requestData.newData;
