@@ -7,6 +7,8 @@ export default class HymnalDB{
       this.db = db
     }
     
+    // rebuilds the entire database, if song is in import will be over written
+    // Does Not overwrite non-backed up songs!
     async init(){
       fs.readFileAsync = function() {
         return new Promise(function(resolve, reject) {

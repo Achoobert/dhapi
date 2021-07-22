@@ -2,11 +2,13 @@ import express from 'express';
 import cors from 'cors';
 import fs from 'fs';
 import HymnalObj from './data/DB.js';
+import FileSaver from './data/filesave.js';
 
 var app = express();
 var port = 8080;
 app.use(cors());
 var songCollection = new HymnalObj();
+var fileSave = new FileSaver();
 var SONGS = songCollection.init().then((data) => {
   console.log(data)
     app.listen(port, () => {
@@ -19,6 +21,17 @@ var SONGS = songCollection.init().then((data) => {
 //   origin: "http://localhost:8080"
 // }));
 app.use(cors());
+
+// save a massive JSON object with all the songs
+app.get('/backupthesongs', (req, res) => {
+  console.log("save requested");
+  songCollection.getAll().then((data) => {
+    fileSave.FileSave(data).then( (report) =>{
+      console.log(report);
+      res.send(report);
+    });
+  });
+})
 
 //Here we are configuring express to use  middle-ware?
 app.use(express.urlencoded({ extended: true }));
