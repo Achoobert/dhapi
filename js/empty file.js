@@ -1,1 +1,0 @@
-export default{"title":{},"author":"*","key":"*","lyrics":{"verses":[{"lines":[]}]},"metadata":[]}

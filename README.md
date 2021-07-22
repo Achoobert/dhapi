@@ -1,1 +1,3 @@
 dhapi
+
+npm run start

@@ -1,1 +1,0 @@
-export default{"currentVerse":{"lines":[],"label":"verse 1","id":1}}
