@@ -65,8 +65,17 @@ router.post('/handle/update/:songId',(request,response) => {
     console.log(report)
     response.send(report);    // echo back
     console.log("calling save-countdown functions")
-    cdreset();
-    countdown();
+
+    // Save changes to JSON after timer finishes
+    if(TIMERRUNNING){
+      // reset the existing timer
+      cdreset();
+    } else{
+      // start a new timer
+      TIMERRUNNING = true
+      cdreset();
+      countdown();
+    }
   });
 });
 
@@ -101,20 +110,25 @@ app.get("/", (req, res)=>{
 
 
    
-var CCOUNT = 60;
+var CCOUNT = 480;
+var TIMERRUNNING = false;
 
 var t, count;
 
 function countdown() {
   // starts countdown
-  console.log('counting', count)
+  if ((count%60)===0){
+    console.log('Minutes left till save', (count/60))
+  }
+  
   if (count == 0) {
     // time is up
     console.log('Timer is used up, saving:')
     saveAllSongs()
+    TIMERRUNNING = false // timer is no longer running...
   } else {
     count--;
-    t = setTimeout("countdown()", 1000);
+    t = setTimeout(countdown, 1000);
   }
 };
 
@@ -126,7 +140,7 @@ function cdreset() {
 }
 
 function saveAllSongs(){
-  console.log('staring songs save')
+  console.log('starting songs save')
   songCollection.getAll().then((data) => {
     fileSave.FileSave(data).then( (report) =>{
       console.log('songs save done');
