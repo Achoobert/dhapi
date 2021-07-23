@@ -22,17 +22,6 @@ var SONGS = songCollection.init().then((data) => {
 // }));
 app.use(cors());
 
-// save a massive JSON object with all the songs
-app.get('/backupthesongs', (req, res) => {
-  console.log("save requested");
-  songCollection.getAll().then((data) => {
-    fileSave.FileSave(data).then( (report) =>{
-      console.log(report);
-      res.send('done');
-    });
-  });
-})
-
 //Here we are configuring express to use  middle-ware?
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());  
@@ -69,21 +58,15 @@ app.get('/song/:songid', (req, res) => {
   });
 });
 
-// set a single song 
-router.post('/handle',(request,response) => {
-  //To access POST variable use req.body()methods.
-  console.log(request.body);// your JSON
-  
-  songCollection.setSong(request.body.songId, request.body.song).then((report) => {
-    console.log(report)
-    response.send("thanks!");    // echo back
-  });
-});
 // set a specific item 
 router.post('/handle/update/:songId',(request,response) => {  
+  // TODO verify incoming data
   songCollection.updateSong(request.body).then((report) => {
     console.log(report)
     response.send(report);    // echo back
+    console.log("calling save-countdown functions")
+    cdreset();
+    countdown();
   });
 });
 
@@ -117,4 +100,39 @@ app.get("/", (req, res)=>{
 
 
 
+   
+var CCOUNT = 60;
 
+var t, count;
+
+function countdown() {
+  // starts countdown
+  console.log('counting', count)
+  if (count == 0) {
+    // time is up
+    console.log('Timer is used up, saving:')
+    saveAllSongs()
+  } else {
+    count--;
+    t = setTimeout("countdown()", 1000);
+  }
+};
+
+
+function cdreset() {
+  // resets countdown
+  console.log('resetting countdown')
+  count = CCOUNT;
+}
+
+function saveAllSongs(){
+  console.log('staring songs save')
+  songCollection.getAll().then((data) => {
+    fileSave.FileSave(data).then( (report) =>{
+      console.log('songs save done');
+    });
+  });
+}
+
+// "Start" countdown()
+// Reset" cdreset()
