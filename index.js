@@ -16,7 +16,7 @@ var SONGS = songCollection.init().then((data) => {
     })
     return data;
   })
-
+console.log(songCollection.findNextAvailableId())
 // app.use(cors({
 //   origin: "http://localhost:8080"
 // }));
@@ -102,15 +102,31 @@ app.get("/list/:languagetag", (req, res)=>{
 app.get("/", (req, res)=>{
   songCollection.getList()
     .then((dbData) => {
+      // cleanData(dbData);
       res.send(dbData);
       console.log("Page sent")
     });
 })
 
-
+function cleanData(array){
+  console.log("Cleaning")
+  array.forEach(element => {
+    try {
+      let intKey = parseInt(element)
+      if (isNaN(intKey)) {
+        console.log({"Found an invalid number, deleting":element})
+        // songCollection.deleteSong(element)
+      }
+    } catch (error) {
+      console.log({"Found an unparseable ID, deleting":element})
+      // songCollection.deleteSong(element)
+    }
+  });
+  
+}
 
    
-var CCOUNT = 480;
+var CCOUNT = 320;
 var TIMERRUNNING = false;
 
 var t, count;

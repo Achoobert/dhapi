@@ -5,6 +5,7 @@ const db = new Database();
 export default class HymnalDB{
     static constructor() {
       this.db = db
+      this.availableId
     }
     
     // rebuilds the entire database, if song is in import will be over written
@@ -68,7 +69,7 @@ export default class HymnalDB{
     }
     // update only selected
     async updateSong(requestData){
-      let key = requestData.songId
+      let key = this.checkKey(requestData.songId)
       return db.get(key).then(songData => {
         if (songData == undefined || songData.song == undefined){
           console.log('song did not already exist... creating')
@@ -100,8 +101,44 @@ export default class HymnalDB{
     }
     async resetDB(list){
       list.forEach(id => {
-            db.delete(id);
+        db.delete(id);
       });
     }
+    async checkKey(key){
+      if( key === undefined || key === null || parseInt(key) == NaN ){
+        console.log({"This is not a valid key for inserting or updating a song": key});
+        //find a new key
+        return this.availableId
+      } else{
+        return key
+      }
+    }
+    async findNextAvailableId(){
+      this.getList().then( list =>{
+        if(list === "keys are null"){
+          setTimeout(findNextAvailableId, 120000); // try again in 120 seconds
+        } else {
+          // look through the array and find an available ID
+          this.availableId
+          var sortedArray = list
+            .slice() // Make a copy of the array.
+            .sort((a, b) =>{ 
+                return parseInt(a) - parseInt(b)
+              })// Sort it.
+          let previousId = 0;
+          for (let element of sortedArray) {
+            if (element.id != (previousId + 1)) {
+              // Found a gap.
+              return previousId + 1;
+            }
+            previousId = element.id;
+          }
+          // Found no gaps.
+          return previousId + 1;
+        }
+      })
+    }
+
+    
 }
 
