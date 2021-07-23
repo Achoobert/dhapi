@@ -28,7 +28,7 @@ app.get('/backupthesongs', (req, res) => {
   songCollection.getAll().then((data) => {
     fileSave.FileSave(data).then( (report) =>{
       console.log(report);
-      res.send(report);
+      res.send('done');
     });
   });
 })
