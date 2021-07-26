@@ -67,14 +67,25 @@ export default class HymnalDB {
       return (`updated song: ${newData.id}`)
     });
   }
-  // update only selected
+  // meant to only be called by index, checks data
   async updateSong(requestData) {
-    let key = this.checkKey(requestData.songId)
+    let key = await this.checkKey(requestData.songId)
     return db.get(key).then(songData => {
-      if (songData == undefined || songData.song == undefined) {
+      if (songData == undefined || songData.song === {} || songData === "song value is null") {
         console.log('song did not already exist... creating')
-        return this.newSong(key, requestData.newData);
+        return this.insertNewSong(key, requestData.newData);
+      } else if (!songData.song || songData.song.lyrics === undefined){
+        // data is malformed, reset it, and continue
+        this.getBlankSong(key).then(newSongData => {
+          let tempData = {'song':newSongData,'id':key,'songId':key}
+          return this.updateExistingSong(requestData, key, tempData)
+        })
+      } else {
+        return this.updateExistingSong(requestData, key, songData)
       }
+    });
+  }
+  async updateExistingSong(requestData, key, songData) {
       if (requestData.lineId) {
         songData.song.lyrics.verses[requestData.verseId].lines[requestData.lineId] = requestData.newData;
       } else if (requestData.verseId) {
@@ -84,9 +95,26 @@ export default class HymnalDB {
       }
 
       return this.setSong(key, songData)
-    });
   }
-  async newSong(key, newData) {
+  // meant to only be called by index, checks data
+  async newSong(newData) {
+    let key = await this.checkKey(newData.songId)
+    // verify does not exist
+    getSong(key).then(value => { 
+      if(value == undefined || value === "song value is null"|| !value.song || value.song === {}){
+        // key is available
+        return this.insertNewSong(key, newData)
+      } else {
+        // use the next available ID
+        let newSongId = this.availableId.toString()
+        this.insertNewSong(newSongId, {}).then( ()=> { // reserve a blank spot in the database...
+          this.findNextAvailableId() // then send this function off to find the next spot
+        });
+        return newSongId;
+      }
+    })
+  }
+  async insertNewSong(key, newData) {
     return db.set(key, newData).then((key) => {
       // TODO fs write
       console.log(key);
@@ -105,10 +133,14 @@ export default class HymnalDB {
     });
   }
   async checkKey(key) {
-    if (key === undefined || key === null || parseInt(key) == NaN) {
+    if (key === undefined || key === null || isNaN(parseInt(key)) ) {
       console.log({ "This is not a valid key for inserting or updating a song": key });
       //find a new key
-      return this.availableId
+      let newSongId = this.availableId.toString()
+      this.insertNewSong(newSongId, {}).then( ()=> { // reserve a blank spot in the database...
+        this.findNextAvailableId() // then send this function off to find the next spot
+      });
+      return newSongId;
     } else {
       return key
     }
@@ -156,7 +188,39 @@ export default class HymnalDB {
       }
     })
   }
-
-
+  async getBlankSong(id){
+    return {
+          "title": {
+              "en": "*"
+          },
+          "author": "*",
+          "key": "*",
+          "lyrics": {
+              "verses": [
+                  {
+                      "lines": [
+                          {
+                              "phrases": [
+                                  {
+                                      "chord": "*",
+                                      "number": "1",
+                                      "en": "*"
+                                  }
+                              ]
+                          }
+                      ],
+                      "label": "Verse 1",
+                      "id": 1
+                  }
+              ]
+          },
+          "metadata": [
+              {
+                  "en": "Copyright..."
+              }
+          ],
+          "id": id
+      }
+  }
 }
 

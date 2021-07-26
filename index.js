@@ -78,6 +78,26 @@ router.post('/handle/update/:songId', (request, response) => {
     }
   });
 });
+// set a single new item 
+router.post('/handle/new', (request, response) => {
+  // TODO verify incoming data
+  songCollection.newSong(request.body).then((report) => {
+    console.log(report)
+    response.send(report);    // echo back
+    console.log("calling save-countdown functions")
+
+    // Save changes to JSON after timer finishes
+    if (TIMERRUNNING) {
+      // reset the existing timer
+      cdreset();
+    } else {
+      // start a new timer
+      TIMERRUNNING = true
+      cdreset();
+      countdown();
+    }
+  });
+});
 
 // send a list of valid songIDs 
 app.get("/list", (req, res) => {
@@ -115,7 +135,7 @@ function cleanData(array) {
       let intKey = parseInt(element)
       if (isNaN(intKey)) {
         console.log({ "Found an invalid number, deleting": element })
-        // songCollection.deleteSong(element)
+        //songCollection.deleteSong(element)
       }
     } catch (error) {
       console.log({ "Found an unparseable ID, deleting": element })
