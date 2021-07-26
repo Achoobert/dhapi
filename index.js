@@ -10,13 +10,13 @@ app.use(cors());
 var songCollection = new HymnalObj();
 var fileSave = new FileSaver();
 var SONGS = songCollection.init().then((data) => {
-  console.log(data)
-    app.listen(port, () => {
-        console.log(`data ready and example app listening at http://localhost:${port}`)
-    })
-    return data;
+  //console.log(data)
+  app.listen(port, () => {
+    console.log(`data ready and example app listening at http://localhost:${port}`)
   })
-console.log(songCollection.findNextAvailableId())
+  return data;
+})
+songCollection.findNextAvailableId().then(avabId => { console.log({ "The next abailable Id is": avabId }) })
 // app.use(cors({
 //   origin: "http://localhost:8080"
 // }));
@@ -24,7 +24,7 @@ app.use(cors());
 
 //Here we are configuring express to use  middle-ware?
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json());  
+app.use(express.json());
 const router = express.Router();
 app.use("/", router);
 
@@ -36,7 +36,7 @@ app.get('/songs', (req, res) => {
   });
   //res.json(SONGS)
 })
-app.post('/songs',  (req, res) => {
+app.post('/songs', (req, res) => {
   songCollection.getAll().then((data) => {
     res.json(data)
   });
@@ -59,7 +59,7 @@ app.get('/song/:songid', (req, res) => {
 });
 
 // set a specific item 
-router.post('/handle/update/:songId',(request,response) => {  
+router.post('/handle/update/:songId', (request, response) => {
   // TODO verify incoming data
   songCollection.updateSong(request.body).then((report) => {
     console.log(report)
@@ -67,10 +67,10 @@ router.post('/handle/update/:songId',(request,response) => {
     console.log("calling save-countdown functions")
 
     // Save changes to JSON after timer finishes
-    if(TIMERRUNNING){
+    if (TIMERRUNNING) {
       // reset the existing timer
       cdreset();
-    } else{
+    } else {
       // start a new timer
       TIMERRUNNING = true
       cdreset();
@@ -80,8 +80,8 @@ router.post('/handle/update/:songId',(request,response) => {
 });
 
 // send a list of valid songIDs 
-app.get("/list", (req, res)=>{
-  res.send(["0","1","10","100"])
+app.get("/list", (req, res) => {
+  res.send(["0", "1", "10", "100"])
   // songCollection.getList()
   //   .then((dbData) => {
   //     res.send(dbData);
@@ -89,8 +89,8 @@ app.get("/list", (req, res)=>{
   //   });
 })
 // send a list of valid songIDs and titles in a given language
-app.get("/list/:languagetag", (req, res)=>{
-  res.send([{'songId':"0",'song':'abcd'},{'songId':"1",'song':'abc'}])
+app.get("/list/:languagetag", (req, res) => {
+  res.send([{ 'songId': "0", 'song': 'abcd' }, { 'songId': "1", 'song': 'abc' }])
   // songCollection.getList()
   //   .then((dbData) => {
   //     res.send(dbData);
@@ -99,7 +99,7 @@ app.get("/list/:languagetag", (req, res)=>{
 })
 
 // send a list of valid songIDs 
-app.get("/", (req, res)=>{
+app.get("/", (req, res) => {
   songCollection.getList()
     .then((dbData) => {
       // cleanData(dbData);
@@ -108,24 +108,24 @@ app.get("/", (req, res)=>{
     });
 })
 
-function cleanData(array){
+function cleanData(array) {
   console.log("Cleaning")
   array.forEach(element => {
     try {
       let intKey = parseInt(element)
       if (isNaN(intKey)) {
-        console.log({"Found an invalid number, deleting":element})
+        console.log({ "Found an invalid number, deleting": element })
         // songCollection.deleteSong(element)
       }
     } catch (error) {
-      console.log({"Found an unparseable ID, deleting":element})
+      console.log({ "Found an unparseable ID, deleting": element })
       // songCollection.deleteSong(element)
     }
   });
-  
+
 }
 
-   
+
 var CCOUNT = 320;
 var TIMERRUNNING = false;
 
@@ -133,10 +133,10 @@ var t, count;
 
 function countdown() {
   // starts countdown
-  if ((count%60)===0){
-    console.log('Minutes left till save', (count/60))
+  if ((count % 60) === 0) {
+    console.log('Minutes left till save', (count / 60))
   }
-  
+
   if (count == 0) {
     // time is up
     console.log('Timer is used up, saving:')
@@ -155,10 +155,10 @@ function cdreset() {
   count = CCOUNT;
 }
 
-function saveAllSongs(){
+function saveAllSongs() {
   console.log('starting songs save')
   songCollection.getAll().then((data) => {
-    fileSave.FileSave(data).then( (report) =>{
+    fileSave.FileSave(data).then((report) => {
       console.log('songs save done');
     });
   });
