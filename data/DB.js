@@ -114,29 +114,45 @@ export default class HymnalDB {
     }
   }
   async findNextAvailableId() {
-    this.getList().then(list => {
+    return this.getList().then(list => {
       if (list === "keys are null") {
-        this.findNextAvailableId().then(data => { return data }); // try again in 120 seconds
+        return new Promise(function(resolve, reject) {
+          try{
+             new Promise(res => setTimeout(res,10000)).then( ()=> {
+            this.findNextAvailableId().then(data => { resolve( data )
+            })
+          }); // try again in 120 seconds
+          }catch(err){
+            reject(err);
+          }
+        });
       } else {
         // look through the array and find an available ID
-        this.availableId
-        var sortedArray = list
-          .slice() // Make a copy of the array.
-          .sort((a, b) => {
-            return parseInt(a) - parseInt(b)
-          })// Sort it.
-        let previousId = 0;
-        for (let element of sortedArray) {
-          if (element.id != (previousId + 1)) {
-            // Found a gap.
-            this.availableId = previousId + 1
-            return this.availableId;
+        return new Promise(function(resolve, reject) {
+          try {
+            var sortedArray = list
+              .slice() // Make a copy of the array.
+              .sort((a, b) => {
+                return parseInt(a) - parseInt(b)
+              })// Sort it.
+            // Loop starts at 0 and immidiatly adds one
+            var previousId = -1;
+            for (let element of sortedArray) {
+              if (element != (previousId+1).toString()) {
+                // Found a gap.
+                resolve (previousId + 1);
+              }
+              previousId = parseInt(element);
+            }
+            // Found no gaps.
+            resolve (previousId + 1)
+          } catch (err){
+            reject(err)
           }
-          previousId = element.id;
-        }
-        // Found no gaps.
-        this.availableId = previousId + 1
-        return this.availableId;
+        }).then( foundId =>{
+          this.availableId = foundId;
+          return foundId
+        });
       }
     })
   }
