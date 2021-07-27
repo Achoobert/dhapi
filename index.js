@@ -9,7 +9,7 @@ var port = 8080;
 app.use(cors());
 var songCollection = new HymnalObj();
 var fileSave = new FileSaver();
-var SONGS = songCollection.init().then((data) => {
+var SONGS = songCollection.getAll().then((data) => {
   //console.log(data)
   app.listen(port, () => {
     console.log(`data ready and example app listening at http://localhost:${port}`)
@@ -108,23 +108,24 @@ app.get("/list", (req, res) => {
   //     console.log("list sent")
   //   });
 })
-// send a list of valid songIDs and titles in a given language
-app.get("/list/:languagetag", (req, res) => {
-  res.send([{ 'songId': "0", 'song': 'abcd' }, { 'songId': "1", 'song': 'abc' }])
-  // songCollection.getList()
-  //   .then((dbData) => {
-  //     res.send(dbData);
-  //     console.log("list sent")
-  //   });
-})
+// // send a list of valid songIDs and titles in a given language
+// app.get("/list/:languagetag", (req, res) => {
+//   res.send([{ 'songId': "0", 'song': 'abcd' }, { 'songId': "1", 'song': 'abc' }])
+//   // songCollection.getList()
+//   //   .then((dbData) => {
+//   //     res.send(dbData);
+//   //     console.log("list sent")
+//   //   });
+// })
 
 // send a list of valid songIDs 
 app.get("/", (req, res) => {
   songCollection.getList()
     .then((dbData) => {
       // cleanData(dbData);
+      // songCollection.resetDB(dbData)
       res.send(dbData);
-      console.log("Page sent")
+      console.log("Main Page sent")
     });
 })
 

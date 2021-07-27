@@ -8,7 +8,7 @@ export default class HymnalDB {
     this.availableId
   }
 
-  // rebuilds the entire database, if song is in import will be over written
+  // rebuilds the entire database. if song is in import, it will be over written
   // Does Not overwrite non-backed up songs!
   async init() {
     fs.readFileAsync = function() {
@@ -23,11 +23,11 @@ export default class HymnalDB {
     };
     return fs.readFileAsync().then((promisedata) => {
       var data = JSON.parse(promisedata)
-      db.setAll(data.dataArray)
-      return data.dataArray
-      // data.dataArray.forEach(song => {
-      //   this.titleList.push({'id':song.id, 'title':song.title })
-      // });
+      let promiseArr = []
+      data.dataArray.forEach(song => {
+        promiseArr.push(this.setSong(song.id, song));
+      });
+      return Promise.all(promiseArr)
     });
   }
   async getAll() {
@@ -64,7 +64,7 @@ export default class HymnalDB {
     return db.set(key, newData).then((key) => {
       // TODO fs write
       console.log({ "Written new data": newData, "key": key });
-      return (`updated song: ${newData.id}`)
+      return ({'message':`updated song: ${newData.id}`})
     });
   }
   // meant to only be called by index, checks data
