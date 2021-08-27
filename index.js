@@ -9,7 +9,8 @@ var port = 8080;
 app.use(cors());
 var songCollection = new HymnalObj();
 var fileSave = new FileSaver();
-var SONGS = songCollection.getAll().then((data) => {
+// initFromBackup
+var SONGS = songCollection.initFromBackup().then((data) => {
   //console.log(data)
   app.listen(port, () => {
     console.log(`data ready and example app listening at http://localhost:${port}`)
@@ -17,6 +18,13 @@ var SONGS = songCollection.getAll().then((data) => {
   return data;
 })
 songCollection.findNextAvailableId().then(avabId => { console.log({ "The next abailable Id is": avabId }) })
+
+//songCollection.getList().then((dbData) => {
+  // cleanData(dbData);
+  // songCollection.resetDB(dbData) });
+//songCollection.initFromFresh().then((data) => {console.log(data)});
+//songCollection.initFromBackup().then((data) => {console.log(data)});
+
 // app.use(cors({
 //   origin: "http://localhost:8080"
 // }));
@@ -30,15 +38,16 @@ app.use("/", router);
 
 // get a massive JSON object with all the songs
 app.get('/songs', (req, res) => {
-  console.log("data requested");
   songCollection.getAll().then((data) => {
     res.json(data)
+    console.log("songs data posted")
   });
   //res.json(SONGS)
 })
 app.post('/songs', (req, res) => {
   songCollection.getAll().then((data) => {
     res.json(data)
+    console.log("songs data posted")
   });
 })
 

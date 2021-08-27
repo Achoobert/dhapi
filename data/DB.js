@@ -10,7 +10,7 @@ export default class HymnalDB {
 
   // rebuilds the entire database. if song is in import, it will be over written
   // Does Not overwrite non-backed up songs!
-  async init() {
+  async initFromFresh() {
     fs.readFileAsync = function() {
       return new Promise(function(resolve, reject) {
         fs.readFile(`./data/test/megaFile.json`, function(err, data) {
@@ -30,10 +30,38 @@ export default class HymnalDB {
       return Promise.all(promiseArr)
     });
   }
+  // rebuilds the entire database. from json backup.
+  // Does Not overwrite non-backed up songs!
+  async initFromBackup() {
+    fs.readFileAsync = function() {
+      return new Promise(function(resolve, reject) {
+        fs.readFile(`./data/json/backup.json`, function(err, data) {
+          if (err)
+            reject(err);
+          else
+            resolve(data);
+        });
+      });
+    };
+    return fs.readFileAsync().then((promisedata) => {
+      var data = JSON.parse(promisedata)
+      let promiseArr = []
+      // not an array so
+      for (const key in data) {
+        if (Object.hasOwnProperty.call(data, key)) {
+          const song = data[key];
+          //promiseArr.push(this.setSong(song.id, song));
+          promiseArr.push(song.id, song);
+        }
+      }
+      //return Promise.all(promiseArr)
+      return (promiseArr)
+    });
+  }
   async getAll() {
     return db.getAll().then(databaseData => {
       if (databaseData == null) {
-        this.init().then(() => {
+        this.initFromBackup().then(() => {
           return this.getAll();
         })
       } else {
