@@ -83,7 +83,7 @@ export default class HymnalDB {
   async getSong(key) {
     return db.get(key).then(value => {
       if (value == null) {
-        return "song value is null"
+        return false
       }
       return value;
     });

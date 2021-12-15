@@ -131,7 +131,7 @@ app.get("/list", (req, res) => {
 app.get("/", (req, res) => {
   songCollection.getList()
     .then((dbData) => {
-      // cleanData(dbData);
+      //cleanData(dbData);
       // songCollection.resetDB(dbData)
       res.send(dbData);
       console.log("Main Page sent")
@@ -145,11 +145,17 @@ function cleanData(array) {
       let intKey = parseInt(element)
       if (isNaN(intKey)) {
         console.log({ "Found an invalid number, deleting": element })
-        //songCollection.deleteSong(element)
+        songCollection.deleteSong(element)
+      } else {
+        var song = songCollection.getSong(element)
+        if (!song || !song.lyrics){
+          console.log({ "Found an invalid song, deleting": element })
+          songCollection.deleteSong(element)
+        } 
       }
     } catch (error) {
       console.log({ "Found an unparseable ID, deleting": element })
-      // songCollection.deleteSong(element)
+      songCollection.deleteSong(element)
     }
   });
 
