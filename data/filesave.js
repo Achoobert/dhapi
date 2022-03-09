@@ -6,7 +6,8 @@ export default class FileSave {
    * Param is JSON data 
    */
   async FileSave(data) {
-    jsonfile.writeFile(file, data)
+    let filePath = './data/json/backup${getFullYear()}${getMonth()}${getDate}.json'
+    jsonfile.writeFile(filePath, data)
       .then(res => {
         console.log('Write complete')
         return 'Write complete'
